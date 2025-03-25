@@ -21,7 +21,7 @@ This project implements a modern URL shortener service with the following compon
 - **Lambda Functions**: Process requests to create and list shortened URLs
 - **CloudFront KeyValueStore Integration**: Backend services interface with the same KeyValueStore used by the edge functions
 
-### Architecture Diagram
+### Diagram
 
 ```
            ┌───────────┐                 ┌───────────────┐
@@ -60,11 +60,9 @@ This project implements a modern URL shortener service with the following compon
 - 🔒 **Secure by Default**: HTTPs for all communications## Usage
 - 📈 **Cost Efficient**: Pay only for what you use with serverless
   
-### Web Interface
-## Getting Started
-1. Open the CloudFront URL in your browser
+
 ### Prerequisites
- URL
+
 - AWS CLI configured with appropriate permissions
 - AWS SAM CLI installed
 - Node.js 18+ and npm
@@ -73,27 +71,25 @@ This project implements a modern URL shortener service with the following compon
 
 1. Clone the repository
 
-2. Check if you have SAM CLI and AWS CLI
-
-3. Deploy using SAM (Serverless Application Model)
+2. Deploy using SAM (Serverless Application Model)
    ```bash
    sam build
    sam deploy --profile default # Change with your aws profile
    ```
 
-4. Update frontend app.js with the api gateway endpoint
+3. Update frontend app.js with the api gateway endpoint
    ```javascript
    const API_URL = 'https://your-api-id.execute-api.your-region.amazonaws.com/Prod';
    ```
 
-5. Use the script to deploy the frontend assets, but first update the script with your s3 name and aws profile
+4. Use the script to deploy the frontend assets, but first update the script with your s3 name and aws profile
    ```bash
    bash front/scripts/deploy.sh --bucket my-custom-bucket --profile my-aws-profile
    ```
 
-6. Access your URL shortener at the CloudFront URL provided in the deployment outputs
+5. Access your URL shortener at the CloudFront URL provided in the deployment outputs
 
-7. If you need to invalidate the cloudfront data (for example, after updating the frontend assets), you can use the following command:
+6. If you need to invalidate the cloudfront data (for example, after updating the frontend assets), you can use the following command:
 ```bash
 aws cloudfront create-invalidation --distribution-id "$id" --paths "/styles.css" "/index.html" "/app.js" "/*" --profile "$profile"
 # Replace $id with your cloudfront distribution id
@@ -102,7 +98,12 @@ aws cloudfront create-invalidation --distribution-id "$id" --paths "/styles.css"
 
 ### API Endpoints
 
-Check the docs/api.http
+For detailed API documentation, see [API Documentation](docs/api.http)
+
+The API provides the following endpoints:
+
+- `POST /url` - Create a new shortened URL
+- `GET /url-keys` - List all shortened URLs (with pagination support)
 
 ## Project Structure
 
