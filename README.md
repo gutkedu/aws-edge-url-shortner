@@ -52,7 +52,7 @@ This project implements a modern URL shortener service with the following compon
 ## Features
 
 - ⚡ **Edge Processing**: Redirects happen at CloudFront edge locations for minimal latency
-- 🌐 **Global Distribution**: Leverages AWS's global CDN networkoy.sh
+- 🌐 **Global Distribution**: Leverages AWS's global CDN network
 - 🔄 **Serverless Architecture**: No servers to manage, scales automatically
 - 📱 **Responsive UI**: Mobile-friendly web interface
 - 📋 **URL History**: View and manage previously created short URLs4. Access your URL shortener at the CloudFront URL provided in the deployment outputs
@@ -88,7 +88,7 @@ This project implements a modern URL shortener service with the following compon
 
 5. Use the script to deploy the frontend assets, but first update the script with your s3 name and aws profile
    ```bash
-   bash front/scripts/deploy.sh
+   bash front/scripts/deploy.sh --bucket my-custom-bucket --profile my-aws-profile
    ```
 
 6. Access your URL shortener at the CloudFront URL provided in the deployment outputs
