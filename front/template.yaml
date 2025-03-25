@@ -172,3 +172,7 @@ Outputs:
   CloudFrontDomainName:
     Description: Domain name of the CloudFront distribution
     Value: !GetAtt CloudFrontDistribution.DomainName
+  
+  CloudfrontId:
+    Description: ID of the CloudFront distribution
+    Value: !GetAtt CloudFrontDistribution.Id

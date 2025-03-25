@@ -36,3 +36,6 @@ Outputs:
     Description: Name of the S3 bucket for the website
     Value: !GetAtt FrontendStackApplication.Outputs.WebsiteBucketName
     
+  CloudfrontId:
+    Description: ID of the CloudFront distribution
+    Value: !GetAtt FrontendStackApplication.Outputs.CloudfrontId

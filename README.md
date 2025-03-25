@@ -93,6 +93,13 @@ This project implements a modern URL shortener service with the following compon
 
 6. Access your URL shortener at the CloudFront URL provided in the deployment outputs
 
+7. If you need to invalidate the cloudfront data (for example, after updating the frontend assets), you can use the following command:
+```bash
+aws cloudfront create-invalidation --distribution-id "$id" --paths "/styles.css" "/index.html" "/app.js" "/*" --profile "$profile"
+# Replace $id with your cloudfront distribution id
+# Replace $profile with your aws profile
+```
+
 ### API Endpoints
 
 Check the docs/api.http
