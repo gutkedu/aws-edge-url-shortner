@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: URL Shortener with CloudFront Functions and KeyValueStore - Main Stack
+
+Parameters:
+  StageName:
+    Type: String
+    Default: dev
+    Description: Stage name for the API Gateway deployment
+
+Resources: 
+  FrontendStackApplication:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./front/template.yaml
+  
+  BackendStackApplication:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./backend/template.yaml
+      Parameters:
+        StageName: !Ref StageName
+        KeyValueStoreArn: !GetAtt FrontendStackApplication.Outputs.KeyValueStoreArn
+        CloudFrontDomainName: !GetAtt FrontendStackApplication.Outputs.CloudFrontDomainName
+
+Outputs:
+  WebsiteURL:
+    Description: URL for the CloudFront distribution
+    Value: !GetAtt FrontendStackApplication.Outputs.WebsiteURL
+  
+  ApiGatewayURL:
+    Description: URL for the API Gateway
+    Value: !GetAtt BackendStackApplication.Outputs.ApiGatewayURL
+
+  WebsiteBucketName:
+    Description: Name of the S3 bucket for the website
+    Value: !GetAtt FrontendStackApplication.Outputs.WebsiteBucketName
+    

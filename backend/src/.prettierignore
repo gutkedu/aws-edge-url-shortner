@@ -1,0 +1,10 @@
+.eslintrc
+.prettierrc
+.eslintignore
+.prettierignore
+.gitignore
+.npmignore
+*.md
+*.yaml
+*.yml
+*.json

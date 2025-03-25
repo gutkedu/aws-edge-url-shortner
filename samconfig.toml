@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "edge-url-shortner"
+resolve_s3 = true
+s3_prefix = "edge-url-shortner"
+region = "us-east-1"
+profile = "gutkedu-terraform"
+capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND"
+parameter_overrides = "StageName=\"dev\""
+image_repositories = []

@@ -1,0 +1,150 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: URL Shortener Backend Stack
+
+Parameters:
+  StageName:
+    Type: String
+    Default: dev
+    Description: Stage name for the API Gateway deployment
+  
+  KeyValueStoreArn:
+    Type: String
+    Description: ARN of the CloudFront KeyValueStore
+
+  CloudFrontDomainName:
+    Type: String
+    Description: Domain name of the CloudFront distribution
+
+Globals:
+  Function:
+    Timeout: 5
+    MemorySize: 512
+    Runtime: nodejs22.x
+    CodeUri: .
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        KEY_VALUE_STORE_ARN: !Ref KeyValueStoreArn
+        CLOUDFRONT_DOMAIN_NAME: !Ref CloudFrontDomainName
+
+Resources:
+  ##########################################################################
+  #                              Layers                                    #
+  ##########################################################################
+  NodejsDepsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: NodejsDepsLayer
+      Description: Dependencies for the Nodejs Lambda functions
+      ContentUri: ./layers/nodejs-deps
+      CompatibleRuntimes:
+        - nodejs22.x
+        - nodejs20.x
+        - nodejs18.x
+    Metadata:
+      BuildMethod: nodejs22.x
+      BuildArchitecture: x86_64
+
+  ##########################################################################
+  #                              Functions                                 #
+  ##########################################################################
+  CreateShortUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CreateShortUrlFunction
+      Description: Create a short URL
+      Handler: create-url-handler.createUrlHandler
+      Layers:
+        - !Ref NodejsDepsLayer
+        - !Sub arn:aws:lambda:${AWS::Region}:094274105915:layer:AWSLambdaPowertoolsTypeScriptV2:17
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /shorten
+            Method: POST
+      Policies:
+        - AWSLambdaExecute 
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'cloudfront-keyvaluestore:PutKey'
+                - 'cloudfront-keyvaluestore:GetKey'
+                - 'cloudfront-keyvaluestore:DeleteKey'
+                - 'cloudfront-keyvaluestore:ListKeys'
+                - 'cloudfront-keyvaluestore:DescribeKeyValueStore'
+              Resource: !Ref KeyValueStoreArn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2022
+        Sourcemap: true
+        EntryPoints:
+          - src/lambdas/create-url-handler.ts
+        External:
+          - zod
+          - '@aws-lambda-powertools/logger'
+          - '@aws-sdk/client-cloudfront-keyvaluestore'
+          - '@aws-sdk/signature-v4-crt'
+
+  ListUrlKeysFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: ListUrlKeysFunction
+      Description: List all the keys in the CloudFront KeyValueStore
+      Handler: list-url-keys-handler.listUrlKeysHandler
+      Layers:
+        - !Sub arn:aws:lambda:${AWS::Region}:094274105915:layer:AWSLambdaPowertoolsTypeScriptV2:17
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /url-keys
+            Method: GET
+      Policies:
+        - AWSLambdaExecute 
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'cloudfront-keyvaluestore:ListKeys'
+              Resource: !Ref KeyValueStoreArn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2022
+        Sourcemap: true
+        EntryPoints:
+          - src/lambdas/list-url-keys-handler.ts
+        External:
+          - '@aws-lambda-powertools/logger'
+          - '@aws-sdk/client-cloudfront-keyvaluestore'
+          - '@aws-sdk/signature-v4-crt'
+
+  ##########################################################################
+  #                              API Gateway                               #
+  ##########################################################################
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref StageName
+      EndpointConfiguration:
+        Type: REGIONAL
+      Auth:
+        DefaultAuthorizer: NONE
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+
+Outputs:
+  ApiGatewayURL:
+    Description: URL for the API Gateway
+    Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${StageName}

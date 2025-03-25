@@ -1,0 +1,16 @@
+@baseUrl = https://ef9gjj3me8.execute-api.us-east-1.amazonaws.com/dev
+
+### shorten url
+POST {{baseUrl}}/shorten
+Content-Type: application/json
+
+{
+    "url": "https://www.google.com"
+}
+
+
+### list urls
+GET {{baseUrl}}/url-keys
+
+### list urls with pagination token
+GET {{baseUrl}}/url-keys?token=AAMA-EFRSURBSGhGM091MnRQMCtRYWViSXZRNmoySU9zdU9CbVJxRjJrc0FhRXA3STlsOGp3RjJweVJ1clRNeUpnY0RVNkxmUjQ3VUFBQUFmakI4QmdrcWhraUc5dzBCQndhZ2J6QnRBZ0VBTUdnR0NTcUdTSWIzRFFFSEFUQWVCZ2xnaGtnQlpRTUVBUzR3RVFRTVdmSTU5T0pNQ0tkOVE2OVlBZ0VRZ0Rzd0tWUk5YdVEraWRlaWluT0h6REpYVFFCNUxQYkNMNzduWUFHanNDMFVpL010SVFTY2IvWXNpTytZY3RpVjFCcGF3SzJqQlZjUFF6NHZBZz09xIFGdedxWxtMVJHJo-2whUPmnCMLP_dIvlKAq7OFtoDuQKgrP-saAfAqaG37qgA08kyZ4dvaO-bh2Q==

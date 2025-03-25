@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkSnip | Modern URL Shortener</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <i data-feather="link"></i>
+        <h1>LinkSnip</h1>
+      </div>
+      <p class="subtitle">Shorten your links with one click</p>
+    </header>
+
+    <main>
+      <div class="card">
+        <form id="url-form">
+          <div class="input-group">
+            <input 
+              type="url" 
+              id="url-input" 
+              placeholder="Enter a long URL" 
+              required
+              autocomplete="off"
+              pattern="https?://.+"
+              title="Please enter a valid URL (starting with http:// or https://)"
+            >
+            <button type="submit" id="shorten-btn">
+              <span>Shorten</span>
+              <i data-feather="arrow-right"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="result-container" id="result-container">
+        <div class="result-card" id="result-card">
+          <div class="result-info">
+            <div class="original-url" id="original-url"></div>
+            <div class="short-url-container">
+              <a href="#" class="short-url" id="short-url" target="_blank"></a>
+              <button class="copy-btn" id="copy-btn" title="Copy to clipboard">
+                <i data-feather="copy"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="url-history-container" id="url-history-container">
+        <h2>Recent Links</h2>
+        <div class="url-history-empty" id="url-history-empty">
+          <p>No links have been created yet.</p>
+        </div>
+        <div class="url-history-list" id="url-history-list">
+          <!-- URL history items will be inserted here -->
+        </div>
+        
+        <!-- Load More Button -->
+        <button class="load-more-btn" id="load-more-btn" style="display: none;">
+          <span id="load-more-text">Load More</span>
+        </button>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 LinkSnip URL Shortener</p>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast">
+    <div class="toast-content">
+      <i data-feather="check-circle" id="toast-icon"></i>
+      <span id="toast-message">Link copied to clipboard!</span>
+    </div>
+    <div class="toast-progress" id="toast-progress"></div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

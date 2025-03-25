@@ -1,0 +1,30 @@
+{
+  "name": "my-lambda-function",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "npx tsc",
+    "lint": "eslint . --quiet",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "sam:build": "sam build -t template.yaml",
+    "sam:validate": "sam validate --lint -t template.yaml"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.1"
+  },
+  "devDependencies": {
+    "@aws-lambda-powertools/logger": "^2.16.0",
+    "@aws-sdk/client-cloudfront-keyvaluestore": "^3.774.0",
+    "@aws-sdk/signature-v4-crt": "^3.774.0",
+    "@types/aws-lambda": "^8.10.147",
+    "@types/node": "^22.13.10",
+    "eslint": "^9.22.0",
+    "fastify": "^5.2.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.1",
+    "vite-tsconfig-paths": "^5.1.4",
+    "zod": "^3.24.1"
+  }
+}

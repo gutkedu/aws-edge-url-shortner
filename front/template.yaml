@@ -1,0 +1,174 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: URL Shortener Frontend Stack
+
+Resources:
+  # CloudFront Function for URL redirects
+  RedirectFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: CloudFrontRedirectFunction
+      AutoPublish: true
+      FunctionConfig:
+        Comment: "Redirects short URLs to original URLs"
+        Runtime: cloudfront-js-2.0
+        KeyValueStoreAssociations:
+          - KeyValueStoreARN: !GetAtt UrlKeyValueStore.Arn
+      FunctionCode: |
+          import cf from 'cloudfront';
+
+          const kvsHandle = cf.kvs();
+
+          async function handler(event) {
+            var request = event.request;
+            var path = request.uri;
+            
+            // Skip processing for static files and the homepage
+            if (path.endsWith('.css') || 
+                path.endsWith('.js') || 
+                path.endsWith('.ico') || 
+                path.endsWith('.png') || 
+                path.endsWith('.jpg') || 
+                path.endsWith('.jpeg') || 
+                path.endsWith('.svg') || 
+                path === '/index.html' || 
+                path === '/') {
+              return request;
+            }
+            
+            var shortId = path.substring(1);
+            console.log("Looking up short ID: " + shortId);
+            
+            try {
+              const destination = await kvsHandle.get(shortId);
+              
+              if (destination) {
+                console.log("Found destination: " + destination);
+                
+                // Return a 302 temporary redirect with short cache time
+                return {
+                  statusCode: 302,
+                  statusDescription: 'Found',
+                  headers: {
+                    'location': { value: destination },
+                    'cache-control': { value: 'max-age=30' }  // Only cache for 30 seconds
+                  }
+                };
+              } else {
+                console.log("No destination found for short ID: " + shortId);
+                
+                request.uri = '/index.html';
+                
+                // Add cache-control header to prevent caching of "not found" responses
+                if (!request.headers['cache-control']) {
+                  request.headers['cache-control'] = { value: 'no-store, no-cache, must-revalidate, max-age=0' };
+                }
+                
+                return request;
+              }
+            } catch (error) {
+              console.log("Error accessing Key-Value Store: " + error.message);
+              
+              // Fallback to index page if there's an error
+              request.uri = '/index.html';
+              return request;
+            }
+          }
+
+  # S3 bucket for static website content
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 'url-shortener-frontend-website'
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html 
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # CloudFront Origin Access Identity
+  CloudFrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub "OAI for ${AWS::StackName}"
+
+  # S3 bucket policy for CloudFront
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOAI.S3CanonicalUserId
+            Action: s3:GetObject
+            Resource: !Sub ${WebsiteBucket.Arn}/*
+
+  # CloudFront Distribution
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        PriceClass: PriceClass_100
+        HttpVersion: http2
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt WebsiteBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOAI}"
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachedMethods:
+            - GET
+            - HEAD
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          DefaultTTL: 86400
+          MinTTL: 0
+          MaxTTL: 31536000
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt RedirectFunction.FunctionARN
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        # Add a custom error response
+        CustomErrorResponses:
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 10
+
+  UrlKeyValueStore:
+    Type: AWS::CloudFront::KeyValueStore
+    Properties:
+      Name: cloudfront-key-value-store
+      Comment: "Store mappings between short URLs and destination URLs"
+
+Outputs:
+  WebsiteURL:
+    Description: URL for the CloudFront distribution
+    Value: !Sub https://${CloudFrontDistribution.DomainName}
+      
+  WebsiteBucketName:
+    Description: Name of the S3 bucket hosting the website
+    Value: !Ref WebsiteBucket
+
+  KeyValueStoreArn:
+    Description: ARN of the CloudFront KeyValueStore
+    Value: !GetAtt UrlKeyValueStore.Arn
+
+  CloudFrontDomainName:
+    Description: Domain name of the CloudFront distribution
+    Value: !GetAtt CloudFrontDistribution.DomainName
