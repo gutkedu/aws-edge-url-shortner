@@ -65,75 +65,35 @@ This project implements a modern URL shortener service with the following compon
  URL
 - AWS CLI configured with appropriate permissions
 - AWS SAM CLI installed
-- Node.js 18+ and npm### API Endpoints
+- Node.js 18+ and npm
 
-### Deployment#### Create Short URL
+### Deployment
 
 1. Clone the repository
-   ```bash application/json
-   git clone https://github.com/gutkedu/aws-edge-url-shortner.git
 
-2. Deploy using SAM
+2. Check if you have SAM CLI and AWS CLI
+
+3. Deploy using SAM (Serverless Application Model)
    ```bash
    sam build
    sam deploy --profile default # Change with your aws profile
    ```
 
-3. Update frontend app.js with the api gateway endpoint
+4. Update frontend app.js with the api gateway endpoint
    ```javascript
    const API_URL = 'https://your-api-id.execute-api.your-region.amazonaws.com/Prod';
    ```
 
-4. Use the script to deploy the frontend assets, but first update the script with your s3 name and aws profile
+5. Use the script to deploy the frontend assets, but first update the script with your s3 name and aws profile
    ```bash
    bash front/scripts/deploy.sh
    ```
 
-5. Access your URL shortener at the CloudFront URL provided in the deployment outputs
+6. Access your URL shortener at the CloudFront URL provided in the deployment outputs
 
 ### API Endpoints
 
-#### Create Short URL- CloudFront KeyValueStore has a maximum of 5MB total storage
-```httpackend code
-POST /shorten
-Content-Type: application/json## License
-
-{This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.    "url": "https://example.com/very/long/path"
-}
-```
-
-Response:
-```json
-{
-    "shortId": "abc123",
-    "shortUrl": "https://your-distribution.cloudfront.net/abc123"
-}
-```
-
-#### List All URLs
-```http
-GET /url-keys
-```
-
-Response:
-```json
-{
-  "urlKeys": [
-    {
-      "abc123": "https://example.com/very/long/path"
-    },
-    {
-      "def456": "https://another-example.com/path"
-    }
-  ],
-  "nextToken": null
-}
-```
-
-#### Pagination Support
-```http
-GET /url-keys?token=NEXT_TOKEN_VALUE
-```
+Check the docs/api.http
 
 ## Project Structure
 
