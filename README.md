@@ -2,7 +2,9 @@
 
 A serverless URL shortening service using AWS CloudFront Functions and CloudFront KeyValueStore for high-performance, low-latency URL redirections at the edge.
 
-![URL Shortener Demo](https://via.placeholder.com/800x400?text=URL+Shortener+Demo)
+<div align="center">
+  <img src="./assets/demo.gif" alt="URL Shortener Demo" width="800" />
+</div>
 
 ## Architecture
 
