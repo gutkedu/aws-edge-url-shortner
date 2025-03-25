@@ -51,7 +51,7 @@ Resources:
                   statusDescription: 'Found',
                   headers: {
                     'location': { value: destination },
-                    'cache-control': { value: 'max-age=30' }  // Only cache for 30 seconds
+                    'cache-control': { value: 'max-age=3600' }  /* Only cache for 1 hour */
                   }
                 };
               } else {
