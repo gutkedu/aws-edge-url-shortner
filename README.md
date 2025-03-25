@@ -145,12 +145,11 @@ This solution is designed to be cost-effective:
 - **API Gateway**: Pay per request
 - **S3 Bucket**: Minimal storage costs for the static website
 
-For a small to medium usage (up to 100k shortened URLs per month), estimated cost is typically under $5/month.
-
 ## Limitations
 
 - CloudFront KeyValueStore has a maximum of 5MB total storage
-- Currently limited to 50 URL mappings as configured in the backend code
+- Currently limited to 50 URL mappings per account
+  doc: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-limits.html#limits-keyvaluestores
 - CloudFront Functions have a 10KB code size limit and 1ms CPU time limit
 
 ## Development
