@@ -1,12 +1,47 @@
 #!/bin/bash
 
-# Set variables
-BUCKET_NAME="url-shortener-frontend-website"
+# Default values
+DEFAULT_BUCKET_NAME="url-shortener-frontend-website"
+DEFAULT_PROFILE="gutkedu-terraform"
 FRONTEND_DIR="front"
 SRC_DIR="$FRONTEND_DIR/src"
-PROFILE="gutkedu-terraform"
 
-echo "===== Deploying frontend to S3 bucket: $BUCKET_NAME ($ENV environment) ====="
+# Parse command line arguments
+BUCKET_NAME=$DEFAULT_BUCKET_NAME
+PROFILE=$DEFAULT_PROFILE
+
+# Show usage information
+function show_usage {
+  echo "Usage: $0 [options]"
+  echo "Options:"
+  echo "  -b, --bucket BUCKET_NAME  Specify the S3 bucket name (default: $DEFAULT_BUCKET_NAME)"
+  echo "  -p, --profile PROFILE     Specify the AWS CLI profile (default: $DEFAULT_PROFILE)"
+  echo "  -h, --help                Show this help message"
+  exit 1
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -b|--bucket)
+      BUCKET_NAME="$2"
+      shift 2
+      ;;
+    -p|--profile)
+      PROFILE="$2"
+      shift 2
+      ;;
+    -h|--help)
+      show_usage
+      ;;
+    *)
+      echo "Unknown option: $1"
+      show_usage
+      ;;
+  esac
+done
+
+echo "===== Deploying frontend to S3 bucket: $BUCKET_NAME (using AWS profile: $PROFILE)"
 
 # Check if the frontend directory exists
 if [ ! -d "$SRC_DIR" ]; then
